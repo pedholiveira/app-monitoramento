@@ -15,4 +15,7 @@ public interface Endpoints {
 
     @POST("consumos/{medidor}")
     Call<List<Consumo>> obterConsumos(@Path("medidor") String medidor);
+
+    @POST("consumosMensal/{medidor}/{mes}/{ano}")
+    Call<List<Consumo>> obterConsumosPorMes(@Path("medidor") String medidor, @Path("mes") int mes, @Path("ano") int ano);
 }

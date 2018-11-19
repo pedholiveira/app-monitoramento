@@ -2,7 +2,8 @@ package com.infnet.gec.app_monitoramento.model;
 
 public class Consumo {
     private Float valor;
-    private String data;
+    private String dataReferencia;
+    private Integer mes;
 
     public Float getValor() {
         return valor;
@@ -12,11 +13,19 @@ public class Consumo {
         this.valor = valor;
     }
 
-    public String getData() {
-        return data;
+    public String getDataReferencia() {
+        return dataReferencia;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setDataReferencia(String dataReferencia) {
+        this.dataReferencia = dataReferencia;
+    }
+
+    public Integer getMes() {
+        return mes;
+    }
+
+    public void setMes(Integer mes) {
+        this.mes = mes;
     }
 }

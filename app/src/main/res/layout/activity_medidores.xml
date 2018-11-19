@@ -3,12 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".visao.MedidoresActivity">
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:max="100"
+        android:backgroundTint="#ffff"
+        android:indeterminateTint="#b0174b"
+        android:layout_marginTop="-7dp"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/lvMedidores"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </ListView>
-
 </LinearLayout>
