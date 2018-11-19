@@ -15,29 +15,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MedidorPresenter {
-
-    private Context context;
+public class MedidorPresenter extends BasePresenter {
 
     public MedidorPresenter(Context context) {
-        this.context = context;
+        super(context);
     }
 
     public void obterMedidores(final ObterMedidoresListener listener) {
-        Api.getInstance().getEndpoints().obterConsumos().enqueue(new Callback<List<Consumo>>() {
+        Api.getInstance().getEndpoints().obterMedidores().enqueue(new Callback<List<String>>() {
             @Override
-            public void onResponse(Call<List<Consumo>> call, Response<List<Consumo>> response) {
-                List<Consumo> consumos = response.body();
-                //TODO - Salvar consumos.
-                List<String> medidores = consumos.parallelStream()
-                                                    .map(c -> c.getNome())
-                                                    .distinct()
-                                                    .collect(Collectors.toList());
-                listener.onObterMedidoresSuccess(medidores);
+            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+                listener.onObterMedidoresSuccess(response.body());
             }
 
             @Override
-            public void onFailure(Call<List<Consumo>> call, Throwable t) {
+            public void onFailure(Call<List<String>> call, Throwable t) {
                 listener.onObterMedidoresFailure();
             }
         });

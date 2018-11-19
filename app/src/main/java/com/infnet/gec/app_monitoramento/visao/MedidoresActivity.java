@@ -33,7 +33,7 @@ public class MedidoresActivity extends AppCompatActivity implements ObterMedidor
     @Override
     public void onObterMedidoresSuccess(List<String> medidores) {
         this.medidores = medidores;
-        lvMedidores.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, medidores));
+        lvMedidores.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, medidores));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class MedidoresActivity extends AppCompatActivity implements ObterMedidor
         lvMedidores = findViewById(R.id.lvMedidores);
         lvMedidores.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(this, ConsumoActivity.class);
-            intent.putExtra("consumo", new int[]{1, 2, 1, 5, 0, 6});
+            intent.putExtra("medidor", medidores.get(i));
             startActivity(intent);
         });
 

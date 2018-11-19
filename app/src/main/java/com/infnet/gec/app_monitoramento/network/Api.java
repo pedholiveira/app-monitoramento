@@ -1,5 +1,9 @@
 package com.infnet.gec.app_monitoramento.network;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -9,8 +13,19 @@ public class Api {
     private Endpoints endpoints;
 
     private Api() {
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .addNetworkInterceptor(interceptor)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS);
+
+        OkHttpClient client = builder.build();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api-monitoramento.herokuapp.com/api/")
+                .baseUrl("https://api-monitoramento.herokuapp.com/")
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
