@@ -55,11 +55,16 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <com.github.mikephil.charting.charts.BarChart
+                <!--<com.github.mikephil.charting.charts.BarChart
                     android:id="@+id/bcGraficoAnual"
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
-                    android:layout_margin="15dp" />
+                    android:layout_margin="15dp" />-->
+                <com.github.mikephil.charting.charts.CombinedChart
+                    android:id="@+id/ccGraficoAnual"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_margin="15dp"/>
 
                 <LinearLayout
                     android:id="@+id/llGraficoMes"
@@ -74,8 +79,12 @@
                         android:layout_height="wrap_content"
                         android:textSize="18dp"
                         android:textColor="#000000"/>
-                    <com.github.mikephil.charting.charts.BarChart
+                    <!--<com.github.mikephil.charting.charts.BarChart
                         android:id="@+id/bcGraficoMes"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"/>-->
+                    <com.github.mikephil.charting.charts.CombinedChart
+                        android:id="@+id/ccGraficoMes"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"/>
                 </LinearLayout>

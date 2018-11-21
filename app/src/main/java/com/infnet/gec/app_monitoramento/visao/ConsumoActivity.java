@@ -1,5 +1,6 @@
 package com.infnet.gec.app_monitoramento.visao;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -14,11 +15,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
@@ -28,6 +34,7 @@ import com.infnet.gec.app_monitoramento.listener.ObterConsumoListener;
 import com.infnet.gec.app_monitoramento.model.Consumo;
 import com.infnet.gec.app_monitoramento.presenter.ConsumoPresenter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,10 +47,10 @@ public class ConsumoActivity extends AppCompatActivity implements ObterConsumoLi
     public ProgressBar pbLoading;
     public ScrollView svContainer;
     public Spinner spAnos;
-    public BarChart bcGraficoAnual;
+    public CombinedChart ccGraficoAnual;
     public LinearLayout llGraficoMes;
     public TextView tvGraficoMes;
-    public BarChart bcGraficoMes;
+    public CombinedChart ccGraficoMes;
 
     private ConsumoPresenter presenter;
 
@@ -57,8 +64,9 @@ public class ConsumoActivity extends AppCompatActivity implements ObterConsumoLi
     @Override
     public void onObterConsumoSuccess(List<Consumo> consumos) {
         this.consumosAnual = consumos;
-        configurarGrafico(bcGraficoAnual, true);
-        plotarValores(bcGraficoAnual, consumosAnual);
+        configurarGrafico(ccGraficoAnual, consumos, true);
+        plotarConsumos(ccGraficoAnual, consumosAnual);
+        plotarMediaConsumos(ccGraficoAnual, consumosAnual);
         pbLoading.setVisibility(View.INVISIBLE);
     }
 
@@ -95,8 +103,12 @@ public class ConsumoActivity extends AppCompatActivity implements ObterConsumoLi
 
     @Override
     public void onValueSelected(Entry e, Highlight h) {
-        Consumo consumo = consumosAnual.get((int) e.getX());
-        carregarConsumoMes(consumo.getDataReferencia(), consumo.getMes());
+        if(e.getData() instanceof Consumo){ //Clique na barra.
+            Consumo consumo = (Consumo) e.getData();
+            carregarConsumoMes(consumo.getDataReferencia(), consumo.getMes());
+        } else { //Clique na média.
+
+        }
     }
 
     @Override
@@ -113,10 +125,10 @@ public class ConsumoActivity extends AppCompatActivity implements ObterConsumoLi
         pbLoading = findViewById(R.id.pbLoading);
         svContainer = findViewById(R.id.svContainer);
         spAnos = findViewById(R.id.spAnos);
-        bcGraficoAnual = findViewById(R.id.bcGraficoAnual);
+        ccGraficoAnual = findViewById(R.id.ccGraficoAnual);
         llGraficoMes = findViewById(R.id.llGraficoMes);
         tvGraficoMes = findViewById(R.id.tvGraficoMes);
-        bcGraficoMes = findViewById(R.id.bcGraficoMes);
+        ccGraficoMes = findViewById(R.id.ccGraficoMes);
 
         medidorSelecionado = getIntent().getStringExtra("medidor");
         setTitle(medidorSelecionado);
@@ -126,39 +138,100 @@ public class ConsumoActivity extends AppCompatActivity implements ObterConsumoLi
         presenter.obterAnosDisponiveis(medidorSelecionado, this);
     }
 
-    private void configurarGrafico(BarChart barChart, boolean podeSelecionar) {
-        XAxis xAxis = barChart.getXAxis();
+    private void configurarGrafico(CombinedChart combinedChart, List<Consumo> consumos, boolean podeSelecionar) {
+        XAxis xAxis = combinedChart.getXAxis();
         xAxis.setPosition(BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setGranularity(1f);
+        xAxis.setSpaceMin(0.5f);
+        xAxis.setSpaceMax(0.5f);
 
-        barChart.getAxisRight().setEnabled(false);
-        barChart.getDescription().setEnabled(false);
-        barChart.animateY(1000);
-        barChart.setFitBars(true);
-        barChart.setOnChartValueSelectedListener(this);
-        barChart.setDragEnabled(false);
-        barChart.setTouchEnabled(podeSelecionar);
-    }
-
-    private void plotarValores(BarChart barChart, List<Consumo> consumos) {
-        AtomicInteger i = new AtomicInteger(0);
-        List<BarEntry> values = consumos.stream()
-                .map(c -> new BarEntry(i.getAndIncrement(), c.getValor()))
-                .collect(Collectors.toList());
-
-        BarDataSet dataSet = new BarDataSet(values, "Valor em litros");
-        dataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        combinedChart.getAxisRight().setEnabled(false);
+        combinedChart.getDescription().setEnabled(false);
+        combinedChart.animateY(1000);
+        combinedChart.setOnChartValueSelectedListener(this);
+        combinedChart.setDragEnabled(false);
+        combinedChart.setTouchEnabled(podeSelecionar);
 
         List<String> labels = consumos.stream()
                 .map(c -> c.getDataReferencia())
                 .collect(Collectors.toList());
+        combinedChart.getXAxis().setValueFormatter((value, axis) -> {
+            if(value < 0 || value >= labels.size()) {
+                return "";
+            }
+            return labels.get((int) value);
+        });
+    }
 
-        barChart.getXAxis().mEntries = new float[]{};
-        barChart.getXAxis().setValueFormatter((value, axis) -> labels.get((int) value));
-        barChart.setData(new BarData(Arrays.asList(dataSet)));
-        barChart.notifyDataSetChanged();
-        barChart.invalidate();
+    private void plotarConsumos(CombinedChart combinedChart, List<Consumo> consumos) {
+        AtomicInteger i = new AtomicInteger(0);
+        List<BarEntry> values = consumos.stream()
+                .map(c -> new BarEntry(i.getAndIncrement(), c.getValor(), c))
+                .collect(Collectors.toList());
+
+        BarDataSet dataSet = new BarDataSet(values, "Valor em litros");
+        dataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        dataSet.setValueTextSize(12f);
+
+        BarData barData = new BarData(Arrays.asList(dataSet));
+        barData.setBarWidth(0.25f);
+
+        CombinedData combinedData = new CombinedData();
+        if(combinedChart.getData() != null) {
+            combinedData = combinedChart.getData();
+        }
+        combinedData.setData(barData);
+
+        combinedChart.setData(combinedData);
+        combinedChart.notifyDataSetChanged();
+        combinedChart.invalidate();
+    }
+
+    private void plotarMediaConsumos(CombinedChart combinedChart, List<Consumo> consumos) {
+        List<Float> medias = new ArrayList<>();
+        if(consumos.size() > 1) {
+            medias = calcularMedias(consumos);
+        }
+        AtomicInteger i = new AtomicInteger(0);
+        List<Entry> entries = medias.stream()
+                                        .map(m -> new Entry(i.getAndIncrement(), m))
+                                        .collect(Collectors.toList());
+
+        LineDataSet dataSet = new LineDataSet(entries, "Média de consumo");
+        dataSet.setColor(Color.rgb(66, 134, 244));
+        dataSet.setLineWidth(2.5f);
+        dataSet.setCircleColor(Color.rgb(8, 44, 102));
+        dataSet.setCircleRadius(5f);
+        dataSet.setFillColor(Color.rgb(8, 44, 102));
+        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setDrawValues(false);
+
+        LineData lineData = new LineData(Arrays.asList(dataSet));
+        CombinedData combinedData = new CombinedData();
+        if(combinedChart.getData() != null) {
+            combinedData = combinedChart.getData();
+        }
+        combinedData.setData(lineData);
+
+        combinedChart.setData(combinedData);
+        combinedChart.notifyDataSetChanged();
+        combinedChart.invalidate();
+    }
+
+    private List<Float> calcularMedias(List<Consumo> consumos) {
+        List<Float> medias = new ArrayList<>();
+        AtomicInteger i = new AtomicInteger(0);
+        medias.add(consumos.get(0).getValor());
+        consumos.forEach(c -> {
+            if(i.get() > 0) {
+                Float mediaAnterior = medias.get(i.get() - 1);
+                Consumo consumo = consumos.get(i.get());
+                medias.add((mediaAnterior + consumo.getValor()) / (i.get() + 1));
+            }
+            i.incrementAndGet();
+        });
+        return medias;
     }
 
     private void carregarConsumoMes(String referencia, Integer mes) {
@@ -167,8 +240,9 @@ public class ConsumoActivity extends AppCompatActivity implements ObterConsumoLi
             @Override
             public void onObterConsumoSuccess(List<Consumo> consumos) {
                 ConsumoActivity.this.consumosMes = consumos;
-                configurarGrafico(bcGraficoMes, false);
-                plotarValores(bcGraficoMes, consumosMes);
+                configurarGrafico(ccGraficoMes, consumos, false);
+                plotarConsumos(ccGraficoMes, consumosMes);
+                plotarMediaConsumos(ccGraficoMes, consumosMes);
                 pbLoading.setVisibility(View.INVISIBLE);
 
                 llGraficoMes.setVisibility(View.VISIBLE);
