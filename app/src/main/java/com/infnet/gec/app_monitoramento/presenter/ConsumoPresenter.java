@@ -46,4 +46,18 @@ public class ConsumoPresenter extends BasePresenter {
             }
         });
     }
+
+    public void obterConsumoMes(String medidor, int mes, int ano, ObterConsumoListener listener) {
+        Api.getInstance().getEndpoints().obterConsumosPorMes(medidor, mes, ano).enqueue(new Callback<List<Consumo>>() {
+            @Override
+            public void onResponse(Call<List<Consumo>> call, Response<List<Consumo>> response) {
+                listener.onObterConsumoSuccess(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<Consumo>> call, Throwable t) {
+                listener.onObterConsumoFailure();
+            }
+        });
+    }
 }

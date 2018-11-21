@@ -16,29 +16,70 @@
         android:backgroundTint="#ffff"
         android:indeterminateTint="#b0174b"
         android:layout_marginTop="-7dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:layout_alignParentTop="true"/>
 
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/svContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/pbLoading"
-        android:orientation="vertical">
-        <Spinner
-            android:id="@+id/spAnos"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-            android:layout_marginTop="15dp"
-            android:layout_marginRight="15dp"
-            android:layout_weight="8">
-        </Spinner>
-
-        <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/chart"
+        android:layout_below="@+id/pbLoading">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="15dp"
-            android:layout_weight="1"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="8">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:textSize="18dp"
+                    android:textColor="#000000"
+                    android:text="Consumo anual: "/>
+                <Spinner
+                    android:id="@+id/spAnos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/bcGraficoAnual"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_margin="15dp" />
+
+                <LinearLayout
+                    android:id="@+id/llGraficoMes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:orientation="vertical"
+                    android:visibility="invisible">
+                    <TextView
+                        android:id="@+id/tvGraficoMes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18dp"
+                        android:textColor="#000000"/>
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/bcGraficoMes"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>
